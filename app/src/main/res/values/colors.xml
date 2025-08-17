@@ -1,0 +1,16 @@
+<resources>
+    <!-- Colores principales acordes a la UI de iOS -->
+    <color name="espaoil_red">#C62828</color>
+    <color name="espaoil_red_dark">#8E0000</color>
+    <color name="espaoil_green">#2E7D32</color>
+    <color name="espaoil_orange">#EF6C00</color>
+
+    <!-- Colors referenced by themes -->
+    <color name="purple_200">#BB86FC</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC5</color>
+    <color name="teal_700">#018786</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>
