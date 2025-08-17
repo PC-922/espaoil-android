@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,7 +67,7 @@ fun MyLocationSearchRoute(
         }
     )
 ) {
-    val state = vm.uiState.value
+    val state by vm.uiState.collectAsState()
 
     Scaffold(
         topBar = {
