@@ -10,25 +10,28 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Navigation
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,8 +74,11 @@ fun MyLocationSearchRoute(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(state.title) }
+            CenterAlignedTopAppBar(
+                title = { Text(state.title) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             )
         }
     ) { padding ->
@@ -142,17 +148,23 @@ private fun Header(
     onSearchClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Tipo de combustible:", style = MaterialTheme.typography.bodyLarge)
-        FuelTypeSelector(
-            selected = state.selectedFuelType,
-            onSelected = onFuelTypeSelected
-        )
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("Tipo de combustible:", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            FuelTypeInlineSelector(
+                selected = state.selectedFuelType,
+                onSelected = onFuelTypeSelected
+            )
+        }
 
-        DistanceTextField(
-            value = state.radiusKmInput,
-            onValueChange = onRadiusChanged,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("Radio de búsqueda (km):", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            DistanceTextField(
+                value = state.radiusKmInput,
+                onValueChange = onRadiusChanged,
+                modifier = Modifier.width(84.dp),
+                showLabel = false
+            )
+        }
 
         Button(
             onClick = onSearchClick,
@@ -166,8 +178,8 @@ private fun Header(
                 disabledContainerColor = MaterialTheme.colorScheme.outlineVariant
             )
         ) {
-            androidx.compose.material3.Icon(Icons.Outlined.Navigation, contentDescription = null)
-            androidx.compose.material3.Text(
+            Icon(Icons.Outlined.Navigation, contentDescription = null)
+            Text(
                 text = if (state.isLoadingLocation) "Obteniendo ubicación..." else "Buscar Gasolineras",
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -176,28 +188,20 @@ private fun Header(
 }
 
 @Composable
-private fun FuelTypeSelector(
+private fun FuelTypeInlineSelector(
     selected: FuelType,
     onSelected: (FuelType) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    Column {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(OutlinedTextFieldDefaults.shape)
-                .background(MaterialTheme.colorScheme.surface)
-                .clickable { expanded = true }
-                .padding(12.dp)
-        ) {
-            Text(
-                text = selected.displayName + " \u25BE",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
+    Column(horizontalAlignment = Alignment.End) {
+        Text(
+            text = selected.displayName + " \u25BE",
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.clickable { expanded = true }
+        )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            FuelType.values().forEach { type ->
+            FuelType.entries.forEach { type ->
                 DropdownMenuItem(
                     text = { Text(type.displayName) },
                     onClick = {
@@ -229,13 +233,15 @@ private fun ResultsList(
     Column {
         Text("Ordenar por:", style = MaterialTheme.typography.bodyLarge)
         Spacer(Modifier.height(8.dp))
-        SortSegmentedControl(
-            selected = state.sortOption,
-            onSelected = onSortChange
-        )
-        Spacer(Modifier.height(8.dp))
-        AnimatedVisibility(visible = state.sortOption == SortOption.PRICE, enter = fadeIn(), exit = fadeOut()) {
-            Text("(más baratas primero)", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            SortSegmentedControl(
+                selected = state.sortOption,
+                onSelected = onSortChange,
+                modifier = Modifier.weight(1f)
+            )
+            AnimatedVisibility(visible = state.sortOption == SortOption.PRICE, enter = fadeIn(), exit = fadeOut()) {
+                Text("(más baratas primero)", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+            }
         }
         Spacer(Modifier.height(8.dp))
         LazyColumn(

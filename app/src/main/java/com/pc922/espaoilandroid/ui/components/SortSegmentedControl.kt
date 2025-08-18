@@ -1,6 +1,5 @@
 package com.pc922.espaoilandroid.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -27,7 +26,7 @@ fun SortSegmentedControl(
         shape = RoundedCornerShape(20.dp),
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
-        color = MaterialTheme.colorScheme.surfaceVariant
+        color = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier.padding(6.dp),
@@ -53,20 +52,23 @@ private fun SegmentButton(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(18.dp)
     val colors = if (selected) {
         ButtonDefaults.filledTonalButtonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         )
     } else {
-        ButtonDefaults.filledTonalButtonColors()
+        ButtonDefaults.filledTonalButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
     }
     OutlinedButton(
         onClick = onClick,
         shape = shape,
         modifier = Modifier.height(36.dp),
-        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        border = null,
         colors = colors,
         content = { Text(text) }
     )

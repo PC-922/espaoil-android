@@ -13,7 +13,8 @@ import androidx.compose.ui.text.input.KeyboardType
 fun DistanceTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showLabel: Boolean = true
 ) {
     val regex = remember { Regex("^[0-9]*\\.?[0-9]{0,2}$") } // admite decimales
     OutlinedTextField(
@@ -23,7 +24,7 @@ fun DistanceTextField(
         },
         modifier = modifier,
         singleLine = true,
-        label = { Text("Radio de búsqueda (km):") },
+        label = if (showLabel) ({ Text("Radio de búsqueda (km):") }) else null,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Decimal,
             imeAction = ImeAction.Done
