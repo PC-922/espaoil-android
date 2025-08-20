@@ -1,46 +1,29 @@
 package com.pc922.espaoilandroid.ui.home
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Navigation
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -75,12 +58,13 @@ fun MyLocationSearchRoute(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(state.title) },
+                title = { Text(state.title, fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant
     ) { padding ->
         Content(
             state = state,
@@ -88,7 +72,8 @@ fun MyLocationSearchRoute(
             onRadiusChanged = vm::onRadiusChanged,
             onSearchClick = vm::search,
             onSortChange = vm::onSortOptionSelected,
-            modifier = modifier.padding(padding)
+            modifier = modifier,
+            innerPadding = padding
         )
     }
 }
@@ -100,24 +85,33 @@ private fun Content(
     onRadiusChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
     onSortChange: (SortOption) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp)
     ) {
-        Spacer(Modifier.height(8.dp))
-        Header(
-            state = state,
-            onFuelTypeSelected = onFuelTypeSelected,
-            onRadiusChanged = onRadiusChanged,
-            onSearchClick = onSearchClick
-        )
+        // Top insets from Scaffold and reduced spacing under title
+        Spacer(Modifier.height(innerPadding.calculateTopPadding()))
+        Spacer(Modifier.height(4.dp))
+
+        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Header(
+                state = state,
+                onFuelTypeSelected = onFuelTypeSelected,
+                onRadiusChanged = onRadiusChanged,
+                onSearchClick = onSearchClick
+            )
+        }
 
         Spacer(Modifier.height(12.dp))
-        StatusRow(state)
+        if (state.authorizationState != AuthorizationState.AUTHORIZED) {
+            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                StatusRow(state)
+            }
+        }
 
         Spacer(Modifier.height(12.dp))
 
@@ -128,11 +122,12 @@ private fun Content(
             when {
                 loadingLocation -> LoadingLocationView()
                 loadingStations -> LoadingStationsView()
-                state.locationErrorMessage != null -> ErrorView(state.locationErrorMessage)
-                state.stationsErrorMessage != null -> ErrorView(state.stationsErrorMessage)
+                state.locationErrorMessage != null -> ErrorView(state.locationErrorMessage!!)
+                state.stationsErrorMessage != null -> ErrorView(state.stationsErrorMessage!!)
                 hasResults -> ResultsList(
                     state = state,
-                    onSortChange = onSortChange
+                    onSortChange = onSortChange,
+                    bottomInset = innerPadding.calculateBottomPadding()
                 )
                 else -> EmptyView()
             }
@@ -226,31 +221,43 @@ private fun StatusRow(state: MyLocationSearchUiState) {
 }
 
 @Composable
-private fun ResultsList(
+private fun ColumnScope.ResultsList(
     state: MyLocationSearchUiState,
-    onSortChange: (SortOption) -> Unit
+    onSortChange: (SortOption) -> Unit,
+    bottomInset: Dp
 ) {
-    Column {
-        Text("Ordenar por:", style = MaterialTheme.typography.bodyLarge)
-        Spacer(Modifier.height(8.dp))
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            SortSegmentedControl(
-                selected = state.sortOption,
-                onSelected = onSortChange,
-                modifier = Modifier.weight(1f)
-            )
-            AnimatedVisibility(visible = state.sortOption == SortOption.PRICE, enter = fadeIn(), exit = fadeOut()) {
-                Text("(más baratas primero)", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(0.dp),
+        shadowElevation = 0.dp,
+        modifier = Modifier.weight(1f)
+    ) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + bottomInset)) {
+            Text("Ordenar por:", style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.height(8.dp))
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                SortSegmentedControl(
+                    selected = state.sortOption,
+                    onSelected = onSortChange,
+                    modifier = Modifier.weight(1f)
+                )
+                val helperText = when (state.sortOption) {
+                    SortOption.PRICE -> "(más baratas primero)"
+                    SortOption.DISTANCE -> "(más cercanas primero)"
+                }
+                AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
+                    Text(helperText, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                }
             }
-        }
-        Spacer(Modifier.height(8.dp))
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(state.stations, key = { it.id }) { station ->
-                GasStationRow(station = station, modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(8.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(state.stations, key = { it.id }) { station ->
+                    GasStationRow(station = station, modifier = Modifier.fillMaxWidth())
+                }
             }
         }
     }
