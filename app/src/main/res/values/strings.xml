@@ -1,4 +1,16 @@
 <resources>
     <string name="app_name">EspaOil</string>
-    <string name="maps_not_found">No se encontró una app de mapas</string>
+    <string name="maps_not_found">No maps app found</string>
+
+    <!-- UI strings -->
+    <string name="search_gas_stations">Search Gas Stations</string>
+    <string name="fuel_type_label">Fuel type:</string>
+    <string name="search_radius_label">Search radius (km):</string>
+    <string name="ready_to_search">Ready to search</string>
+    <string name="sort_by">Sort by:</string>
+    <string name="helper_price">(cheapest first)</string>
+    <string name="helper_distance">(closest first)</string>
+    <string name="open_in_maps">Open in Maps</string>
+    <string name="verifying_location">Obtaining location...</string>
+    <string name="no_data">No data to display</string>
 </resources>

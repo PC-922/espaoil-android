@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.compose.ui.res.stringResource
 import com.pc922.espaoilandroid.data.FakeGasStationRepository
 import com.pc922.espaoilandroid.location.FakeLocationProvider
 import com.pc922.espaoilandroid.model.AuthorizationState
@@ -52,7 +53,7 @@ fun MyLocationSearchRoute(
             }
         }
     )
-) {
+    ) {
     val state by vm.uiState.collectAsState()
 
     Scaffold(
@@ -98,7 +99,7 @@ private fun Content(
         Spacer(Modifier.height(4.dp))
 
         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Header(
+        Header(
                 state = state,
                 onFuelTypeSelected = onFuelTypeSelected,
                 onRadiusChanged = onRadiusChanged,
@@ -144,7 +145,7 @@ private fun Header(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Tipo de combustible:", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            Text(stringResource(id = com.pc922.espaoilandroid.R.string.fuel_type_label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             FuelTypeInlineSelector(
                 selected = state.selectedFuelType,
                 onSelected = onFuelTypeSelected
@@ -152,7 +153,7 @@ private fun Header(
         }
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Radio de búsqueda (km):", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            Text(stringResource(id = com.pc922.espaoilandroid.R.string.search_radius_label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             DistanceTextField(
                 value = state.radiusKmInput,
                 onValueChange = onRadiusChanged,
@@ -175,7 +176,7 @@ private fun Header(
         ) {
             Icon(Icons.Outlined.Navigation, contentDescription = null)
             Text(
-                text = if (state.isLoadingLocation) "Obteniendo ubicación..." else "Buscar Gasolineras",
+                text = if (state.isLoadingLocation) stringResource(id = com.pc922.espaoilandroid.R.string.verifying_location) else stringResource(id = com.pc922.espaoilandroid.R.string.search_gas_stations),
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -212,10 +213,10 @@ private fun FuelTypeInlineSelector(
 @Composable
 private fun StatusRow(state: MyLocationSearchUiState) {
     val statusText = when (state.authorizationState) {
-        AuthorizationState.AUTHORIZED -> "Listo para buscar"
-        AuthorizationState.DENIED -> "Acceso denegado"
-        AuthorizationState.NOT_DETERMINED -> "Pendiente autorización"
-        AuthorizationState.LOADING -> "Obteniendo ubicación..."
+        AuthorizationState.AUTHORIZED -> stringResource(id = com.pc922.espaoilandroid.R.string.ready_to_search)
+        AuthorizationState.DENIED -> stringResource(id = com.pc922.espaoilandroid.R.string.maps_not_found)
+        AuthorizationState.NOT_DETERMINED -> stringResource(id = com.pc922.espaoilandroid.R.string.verifying_location)
+        AuthorizationState.LOADING -> stringResource(id = com.pc922.espaoilandroid.R.string.verifying_location)
     }
     StatusIndicator(state.authorizationState, statusText, modifier = Modifier.padding(horizontal = 8.dp))
 }
@@ -232,9 +233,9 @@ private fun ColumnScope.ResultsList(
         shadowElevation = 0.dp,
         modifier = Modifier.weight(1f)
     ) {
-        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + bottomInset)) {
-            Text("Ordenar por:", style = MaterialTheme.typography.bodyLarge)
-            Spacer(Modifier.height(8.dp))
+        Column(modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp + bottomInset)) {
+            Text(stringResource(id = com.pc922.espaoilandroid.R.string.sort_by), style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.height(6.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 SortSegmentedControl(
                     selected = state.sortOption,
@@ -242,8 +243,8 @@ private fun ColumnScope.ResultsList(
                     modifier = Modifier.weight(1f)
                 )
                 val helperText = when (state.sortOption) {
-                    SortOption.PRICE -> "(más baratas primero)"
-                    SortOption.DISTANCE -> "(más cercanas primero)"
+                    SortOption.PRICE -> stringResource(id = com.pc922.espaoilandroid.R.string.helper_price)
+                    SortOption.DISTANCE -> stringResource(id = com.pc922.espaoilandroid.R.string.helper_distance)
                 }
                 AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
                     Text(helperText, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
@@ -253,7 +254,7 @@ private fun ColumnScope.ResultsList(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 items(state.stations, key = { it.id }) { station ->
                     GasStationRow(station = station, modifier = Modifier.fillMaxWidth())
