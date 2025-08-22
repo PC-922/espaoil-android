@@ -14,7 +14,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Navigation
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.Manifest
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +34,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.compose.ui.res.stringResource
 import com.pc922.espaoilandroid.data.FakeGasStationRepository
+import com.pc922.espaoilandroid.data.RealGasStationRepository
+import com.pc922.espaoilandroid.BuildConfig
 import com.pc922.espaoilandroid.location.FakeLocationProvider
 import com.pc922.espaoilandroid.model.AuthorizationState
 import com.pc922.espaoilandroid.model.FuelType
@@ -42,18 +48,19 @@ import com.pc922.espaoilandroid.ui.components.StatusIndicator
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyLocationSearchRoute(
-    modifier: Modifier = Modifier,
-    vm: MyLocationSearchViewModel = viewModel(
+    modifier: Modifier = Modifier
+) {
+    val ctx = LocalContext.current
+    val vm: MyLocationSearchViewModel = viewModel(
         factory = viewModelFactory {
             initializer {
                 MyLocationSearchViewModel(
-                    repository = FakeGasStationRepository(),
-                    locationProvider = FakeLocationProvider(authorize = true)
+                    repository = RealGasStationRepository(BuildConfig.BASE_API_URL),
+                    locationProvider = com.pc922.espaoilandroid.location.DeviceLocationProvider(ctx)
                 )
             }
         }
     )
-    ) {
     val state by vm.uiState.collectAsState()
 
     Scaffold(
@@ -73,6 +80,7 @@ fun MyLocationSearchRoute(
             onRadiusChanged = vm::onRadiusChanged,
             onSearchClick = vm::search,
             onSortChange = vm::onSortOptionSelected,
+            onRefreshAuthorization = vm::refreshAuthorizationState,
             modifier = modifier,
             innerPadding = padding
         )
@@ -86,6 +94,7 @@ private fun Content(
     onRadiusChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
     onSortChange: (SortOption) -> Unit,
+    onRefreshAuthorization: () -> Unit,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues
 ) {
@@ -98,19 +107,35 @@ private fun Content(
         Spacer(Modifier.height(innerPadding.calculateTopPadding()))
         Spacer(Modifier.height(4.dp))
 
+        // Permission launcher: ask for ACCESS_FINE_LOCATION when needed
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { granted ->
+                // refresh the authorization state in the ViewModel
+                onRefreshAuthorization()
+                // If granted, trigger a search automatically
+                if (granted) onSearchClick()
+            }
+        )
+
         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Header(
+            Header(
                 state = state,
                 onFuelTypeSelected = onFuelTypeSelected,
                 onRadiusChanged = onRadiusChanged,
-                onSearchClick = onSearchClick
+                onSearchClick = onSearchClick,
+                requestPermission = { permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) }
             )
         }
 
         Spacer(Modifier.height(12.dp))
+
+        // Show status row when not authorized; the search button will trigger the system prompt
         if (state.authorizationState != AuthorizationState.AUTHORIZED) {
             Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                StatusRow(state)
+                Column {
+                    StatusRow(state)
+                }
             }
         }
 
@@ -141,7 +166,8 @@ private fun Header(
     state: MyLocationSearchUiState,
     onFuelTypeSelected: (FuelType) -> Unit,
     onRadiusChanged: (String) -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    requestPermission: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -163,7 +189,14 @@ private fun Header(
         }
 
         Button(
-            onClick = onSearchClick,
+            onClick = {
+                // If we don't have authorization, request it. Otherwise perform search.
+                if (state.authorizationState == AuthorizationState.AUTHORIZED) {
+                    onSearchClick()
+                } else {
+                    requestPermission()
+                }
+            },
             enabled = !state.isLoadingLocation && !state.isLoadingStations,
             modifier = Modifier
                 .fillMaxWidth()

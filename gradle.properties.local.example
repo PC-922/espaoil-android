@@ -1,0 +1,6 @@
+# Copy this file to gradle.properties.local (which is gitignored) and set the real API URL
+# Example:
+# BASE_API_URL=https://your-api.com/
+
+BASE_API_URL=
+NETWORK_TIMEOUT_MS=

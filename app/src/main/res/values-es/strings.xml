@@ -14,4 +14,5 @@
     <string name="open_in_maps">Abrir en Mapas</string>
     <string name="verifying_location">Obteniendo ubicación...</string>
     <string name="no_data">No hay datos para mostrar</string>
+    <string name="request_location_permission">Permitir acceso a la ubicación</string>
 </resources>

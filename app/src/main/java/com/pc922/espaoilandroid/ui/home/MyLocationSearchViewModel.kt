@@ -61,6 +61,17 @@ class MyLocationSearchViewModel(
         }
     }
 
+    /**
+     * Re-check authorization state from the location provider and update UI.
+     * Called after the UI requests runtime permission and the user responds.
+     */
+    fun refreshAuthorizationState() {
+        viewModelScope.launch {
+            val auth = locationProvider.getAuthorizationState()
+            _uiState.update { it.copy(authorizationState = auth) }
+        }
+    }
+
     fun search() {
         if (_uiState.value.isLoadingLocation || _uiState.value.isLoadingStations) return
         searchJob?.cancel()
@@ -72,6 +83,7 @@ class MyLocationSearchViewModel(
                     stationsErrorMessage = null
                 )
             }
+            try {
             val radius = _uiState.value.radiusKmInput.toDoubleOrNull() ?: 0.0
             when (locationProvider.getAuthorizationState()) {
                 AuthorizationState.DENIED -> {
@@ -129,12 +141,26 @@ class MyLocationSearchViewModel(
                 return@launch
             }
 
-            val sorted = sortStations(result.getOrThrow(), _uiState.value.sortOption)
+            val stationsList = result.getOrThrow()
+            if (stationsList.isEmpty() && com.pc922.espaoilandroid.BuildConfig.DEBUG) {
+                android.util.Log.d("MyLocationVM", "Repository returned empty list of stations")
+            }
+            val sorted = sortStations(stationsList, _uiState.value.sortOption)
             _uiState.update {
                 it.copy(
                     isLoadingStations = false,
-                    stations = sorted
+                    stations = sorted,
+                    stationsErrorMessage = if (stationsList.isEmpty()) "" else null
                 )
+            }
+            } catch (ex: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoadingLocation = false,
+                        isLoadingStations = false,
+                        stationsErrorMessage = ex.message ?: "Error inesperado"
+                    )
+                }
             }
         }
     }

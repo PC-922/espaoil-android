@@ -1,0 +1,29 @@
+[
+  {
+    "name": "BALLENOIL",
+    "town": "Madrid",
+    "municipality": "Madrid",
+    "schedule": "L-D: 24H",
+    "price": "1.289",
+    "latitude": "40.373",
+    "longitude": "-3.650"
+  },
+  {
+    "name": "ALCAMPO",
+    "town": "Madrid",
+    "municipality": "Madrid",
+    "schedule": "L-D: 24H",
+    "price": "1.289",
+    "latitude": "40.394",
+    "longitude": "-3.655"
+  },
+  {
+    "name": "LOW COST REPOST",
+    "town": "Madrid",
+    "municipality": "Madrid",
+    "schedule": "L-D: 24H",
+    "price": "1.409",
+    "latitude": "40.373",
+    "longitude": "-3.729"
+  }
+]
