@@ -65,6 +65,9 @@ class RealGasStationRepository(private val baseUrl: String?) : GasStationReposit
             }
             if (com.pc922.espaoilandroid.BuildConfig.DEBUG) {
                 Log.d("RealRepo", "Mapped ${mapped.size} stations")
+                mapped.take(10).forEachIndexed { i, s ->
+                    Log.d("RealRepo", "#${i + 1}: id=${s.id}, name=${s.name}, price=${s.priceEurPerLitre}, distance=${s.distanceKm}")
+                }
             }
             Result.success(mapped)
         } catch (ex: Exception) {
