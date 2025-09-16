@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pc922.espaoilandroid.model.SortOption
 
@@ -32,15 +33,16 @@ fun SortSegmentedControl(
             modifier = Modifier.padding(6.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // iOS-like order: Distance first, then Price
             SegmentButton(
-                text = "Precio",
-                selected = selected == SortOption.PRICE,
-                onClick = { onSelected(SortOption.PRICE) }
-            )
-            SegmentButton(
-                text = "Distancia",
+                text = stringResource(id = com.pc922.espaoilandroid.R.string.label_distance),
                 selected = selected == SortOption.DISTANCE,
                 onClick = { onSelected(SortOption.DISTANCE) }
+            )
+            SegmentButton(
+                text = stringResource(id = com.pc922.espaoilandroid.R.string.label_price),
+                selected = selected == SortOption.PRICE,
+                onClick = { onSelected(SortOption.PRICE) }
             )
         }
     }

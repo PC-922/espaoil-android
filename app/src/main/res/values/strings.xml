@@ -8,10 +8,12 @@
     <string name="search_radius_label">Search radius (km):</string>
     <string name="ready_to_search">Ready to search</string>
     <string name="sort_by">Sort by:</string>
+    <string name="label_distance">Distance</string>
+    <string name="label_price">Price</string>
     <string name="helper_price">(cheapest first)</string>
     <string name="helper_distance">(closest first)</string>
     <string name="open_in_maps">Open in Maps</string>
-    <string name="verifying_location">Obtaining location...</string>
+    <string name="verifying_location">Obtaining location…</string>
     <string name="no_data">No data to display</string>
     <string name="request_location_permission">Allow location access</string>
 </resources>

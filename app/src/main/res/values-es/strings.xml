@@ -9,10 +9,12 @@
     <string name="search_radius_label">Radio de búsqueda (km):</string>
     <string name="ready_to_search">Listo para buscar</string>
     <string name="sort_by">Ordenar por:</string>
+    <string name="label_distance">Distancia</string>
+    <string name="label_price">Precio</string>
     <string name="helper_price">(más baratas primero)</string>
     <string name="helper_distance">(más cercanas primero)</string>
     <string name="open_in_maps">Abrir en Mapas</string>
-    <string name="verifying_location">Obteniendo ubicación...</string>
+    <string name="verifying_location">Obteniendo ubicación…</string>
     <string name="no_data">No hay datos para mostrar</string>
     <string name="request_location_permission">Permitir acceso a la ubicación</string>
 </resources>
